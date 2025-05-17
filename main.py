@@ -49,12 +49,16 @@ class AutoTradingSystem:
             self.logger.info("Generating trading signals")
             signals, predictions, actual = self.signal_generator.generate_signals(x_test, y_test)
             
-            # 백테스팅
-            self.logger.info("Running backtest")
-            returns, metrics = self.backtest_engine.run_backtest(signals, actual)
-            self.logger.info(f"Backtest returns: {returns:.2f}%")
-            self.logger.info(f"Final capital: ${metrics['final_capital']:.2f}")
+            # # 백테스팅
+            # self.logger.info("Running backtest")
+            # returns, metrics = self.backtest_engine.run_backtest(signals, actual)
+            # self.logger.info(f"Backtest returns: {returns:.2f}%")
+            # self.logger.info(f"Final capital: ${metrics['final_capital']:.2f}")
             
+            # 백테스팅 부분 수정
+            returns, metrics = self.backtest_engine.run_backtest(signals, actual)
+            self.display_results(returns, metrics)
+
             # 실시간 트레이딩
             self._run_realtime_trading()
             
@@ -84,7 +88,19 @@ class AutoTradingSystem:
             except Exception as e:
                 self.logger.error(f"Error in real-time trading: {str(e)}")
                 time.sleep(60)  # 에러 발생 시 1분 대기 후 재시도
-
+    # main.py의 AutoTradingSystem 클래스에 추가
+    def display_results(self, returns, metrics):
+        """트레이딩 결과 표시"""
+        print("\n====== Trading Results ======")
+        print(f"Symbol: {self.config.SYMBOL}")
+        print(f"Time Period: {metrics['start_date']} to {metrics['end_date']}")
+        print(f"Total Return: {returns:.2f}%")
+        print(f"Initial Capital: ${self.config.INITIAL_CAPITAL:.2f}")
+        print(f"Final Capital: ${metrics['final_capital']:.2f}")
+        print(f"Profit/Loss: ${metrics['final_capital'] - self.config.INITIAL_CAPITAL:.2f}")
+        print(f"Win Rate: {metrics.get('win_rate', 0):.2f}%")
+        print(f"Number of Trades: {metrics.get('trades', 0)}")
+        print("=============================\n")
 def main() -> None:
     try:
         # 설정 로드
